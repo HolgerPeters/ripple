@@ -35,7 +35,7 @@ opts = OptionParser.new do |opts|
     $options["selected_movements"] = v
   end
   
-  opts.on("--no-score", "Do not generate secore") do
+  opts.on("--no-score", "Do not generate score") do
     $options["no_score"] = true
   end
   
