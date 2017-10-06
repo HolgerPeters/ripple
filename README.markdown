@@ -1,5 +1,7 @@
 # Ripple - DRY for Lilypond
 
+[![Build Status](https://travis-ci.org/HolgerPeters/ripple.svg?branch=master)](https://travis-ci.org/HolgerPeters/ripple)
+
 Ripple is a small program that helps you generate scores and parts without repeating yourself, performing complex includes or writing scheme macros.
 
 Here are some of Ripple's features:
