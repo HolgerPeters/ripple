@@ -1,10 +1,8 @@
 #!/usr/bin/env ruby
-# encoding: UTF-8
+trap('INT') { exit }
+trap('TERM') { exit }
 
-trap("INT") {exit}
-trap("TERM") {exit}
-
-$:.unshift File.join(File.dirname(__FILE__), *%w[.. lib])
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
 
 help = <<HELP
 Ripple is a lilypond generator.
@@ -27,103 +25,103 @@ $options = {}
 opts = OptionParser.new do |opts|
   opts.banner = help
 
-  opts.on("-p", "--parts PART", "Parts (comma-separated)") do |v|
-    $options["selected_parts"] = v
+  opts.on('-p', '--parts PART', 'Parts (comma-separated)') do |v|
+    $options['selected_parts'] = v
   end
-  
-  opts.on("-m", "--mvts MVT", "Movements (comma-separated)") do |v|
-    $options["selected_movements"] = v
+
+  opts.on('-m', '--mvts MVT', 'Movements (comma-separated)') do |v|
+    $options['selected_movements'] = v
   end
-  
-  opts.on("--no-score", "Do not generate score") do
-    $options["no_score"] = true
+
+  opts.on('--no-score', 'Do not generate score') do
+    $options['no_score'] = true
   end
-  
-  opts.on("-M", "--midi", "Generate midi file") do
-    $options["midi"] = true
-    $options["score_only"] = true # implied
+
+  opts.on('-M', '--midi', 'Generate midi file') do
+    $options['midi'] = true
+    $options['score_only'] = true # implied
   end
-  
-  opts.on("--no-midi", "Disable midi file generation") do
-    $options["midi"] = false
+
+  opts.on('--no-midi', 'Disable midi file generation') do
+    $options['midi'] = false
   end
-  
-  opts.on("--opt OPT", "Option override (key:value,key:value)") do |v|
-    v.split(",").each do |kv|
-      if kv =~ /(.+):(.+)/ 
-        $options[$1] = $2
+
+  opts.on('--opt OPT', 'Option override (key:value,key:value)') do |v|
+    v.split(',').each do |kv|
+      if kv =~ /(.+):(.+)/
+        $options[Regexp.last_match(1)] = Regexp.last_match(2)
       else
-        puts "Invalid option specified, please use key:value format"
+        puts 'Invalid option specified, please use key:value format'
         exit
       end
     end
   end
-  
-  opts.on("--no-pdf", "Generate Lilypond file only") do
-    $options["no_pdf"] = true
-  end
-  
-  opts.on("-s", "--score", "Generate only score, no parts") do
-    $options["score_only"] = true
-  end
-  
-  opts.on("-V", "--vocal", "Generate only vocal score") do
-    $options["vocal_only"] = true
-  end
-  
-  opts.on("-o", "--open", "Open PDF/Midi file after processing") do
-    $options["open_target"] = true
+
+  opts.on('--no-pdf', 'Generate Lilypond file only') do
+    $options['no_pdf'] = true
   end
 
-  opts.on("--no-open", "Open PDF/Midi file after processing") do
-    $options["open_target"] = false
+  opts.on('-s', '--score', 'Generate only score, no parts') do
+    $options['score_only'] = true
   end
 
-  opts.on("-v", "--version", "Display current version") do
-    puts "Ripple " + Ripple.version
+  opts.on('-V', '--vocal', 'Generate only vocal score') do
+    $options['vocal_only'] = true
+  end
+
+  opts.on('-o', '--open', 'Open PDF/Midi file after processing') do
+    $options['open_target'] = true
+  end
+
+  opts.on('--no-open', 'Open PDF/Midi file after processing') do
+    $options['open_target'] = false
+  end
+
+  opts.on('-v', '--version', 'Display current version') do
+    puts 'Ripple ' + Ripple.version
     exit 0
   end
-  
-  opts.on("-a", "--auto", "Force auto mode") do
-    $options["auto"] = true
-  end
-  
-  opts.on("--no-auto", "Disable auto mode") do
-    $options["auto"] = false
-  end
-  
-  opts.on("-P", "--proof", "Proof-reading mode") do
-    $options["proof"] = true
-    $options["auto"] = true
-    $options["open_target"] = true
-    $options["open_in_background"] = true
+
+  opts.on('-a', '--auto', 'Force auto mode') do
+    $options['auto'] = true
   end
 
-  opts.on("-c", "--compile", "Compilation mode") do
-    $options["compile"] = true
+  opts.on('--no-auto', 'Disable auto mode') do
+    $options['auto'] = false
   end
-  
-  opts.on("-C", "--fast-compile", "Ad-hoc compilation mode") do
-    $options["fast-compile"] = true
+
+  opts.on('-P', '--proof', 'Proof-reading mode') do
+    $options['proof'] = true
+    $options['auto'] = true
+    $options['open_target'] = true
+    $options['open_in_background'] = true
   end
-  
-  opts.on("-t", "--title TITLE", "Title") do |v|
-    $options["title"] = v
+
+  opts.on('-c', '--compile', 'Compilation mode') do
+    $options['compile'] = true
   end
-  
-  opts.on("-b", "--booklet", "Create booklet PDF's") do
-    $options["make_booklet"] = true
+
+  opts.on('-C', '--fast-compile', 'Ad-hoc compilation mode') do
+    $options['fast-compile'] = true
   end
-  
-  opts.on("-W", "--work", "Create new work") do
-    $options["gen"] = :work
+
+  opts.on('-t', '--title TITLE', 'Title') do |v|
+    $options['title'] = v
+  end
+
+  opts.on('-b', '--booklet', "Create booklet PDF's") do
+    $options['make_booklet'] = true
+  end
+
+  opts.on('-W', '--work', 'Create new work') do
+    $options['gen'] = :work
   end
 end
 
 opts.parse!
 
-if $options["gen"]
-  Ripple.generate($options["gen"], ARGV)
+if $options['gen']
+  Ripple.generate($options['gen'], ARGV)
   exit
 end
 
@@ -131,27 +129,23 @@ end
 case ARGV.size
 when 0
   $works = nil
-  if $options["proof"] && !File.exists?('_work.yml')
-    puts "Work must be specified in proof mode."
+  if $options['proof'] && !File.exist?('_work.yml')
+    puts 'Work must be specified in proof mode.'
     exit(1)
   end
-  if File.file?('_work.yml')
-    $works = ['.']
-  end
+  $works = ['.'] if File.file?('_work.yml')
 when 1
   file = ARGV[0]
-  if (file !~ /\.yml$/) and File.file?(file + ".yml")
-    file += ".yml"
-  end
+  file += '.yml' if (file !~ /\.yml$/) && File.file?(file + '.yml')
   $works = [file]
-  if !$options["fast-compile"] && File.file?(file)
-    if file =~ /compilation/ || ((y = convert_yaml(file)) && (y["compilation"]))
-      $options["compile"] = true
+  if !$options['fast-compile'] && File.file?(file)
+    if file =~ /compilation/ || ((y = convert_yaml(file)) && (y['compilation']))
+      $options['compile'] = true
     end
   end
 else
-  if $options["fast-compile"]
-    $options["fast-compile"] = ARGV
+  if $options['fast-compile']
+    $options['fast-compile'] = ARGV
   else
     $works = ARGV
   end
@@ -161,13 +155,13 @@ $config = Ripple.configuration($options)
 $works ||= Ripple.works($config)
 
 def process(opts = {})
-  if $options["fast-compile"]
+  if $options['fast-compile']
     Ripple::Compilation.new(nil, $config).process
   elsif $works.empty?
-    puts "No music found."
+    puts 'No music found.'
   else
     $works.each do |w|
-      if $config["compile"]
+      if $config['compile']
         Ripple::Compilation.new(w, $config.merge(opts)).process
       else
         Ripple::Work.new(w, $config.merge(opts)).process
@@ -175,10 +169,10 @@ def process(opts = {})
     end
   end
 rescue RippleError => e
-  puts "!!!!!!!!!!!!!!"
+  puts '!!!!!!!!!!!!!!'
   puts e.message
-  
-  exit unless $options["auto"]
+
+  exit unless $options['auto']
 end
 
 # Files to watch
@@ -189,13 +183,11 @@ def globs(source)
     else
       dirs = Dir['*'].select { |x| File.directory?(x) }
       # exclude _ly, _pdf, _midi dirs
-      ['ly_dir', 'pdf_dir', 'midi_dir'].map {|d| $config[d]}.each do |d|
-        if d =~ /^\.\/(.*)/
-          dirs -= [$1]
-        end
+      %w[ly_dir pdf_dir midi_dir].map { |d| $config[d] }.each do |d|
+        dirs -= [Regexp.last_match(1)] if d =~ /^\.\/(.*)/
       end
     end
-    
+
     dirs = dirs.map { |x| "#{x}/**/*" }
     dirs
   end
@@ -205,29 +197,17 @@ def proof_options(path)
   path = path.gsub('/./', '/')
   part = File.basename(path, '.*')
   # check if the file belongs to a keyboard part (e.g. organo.r.rpl)
-  if part =~ /^(.*)\.\d$/
-    part = $1
-  end
+  part = Regexp.last_match(1) if part =~ /^(.*)\.\d$/
   base = $works.first
-  if base == '.'
-    base = File.expand_path(base)
-  end
+  base = File.expand_path(base) if base == '.'
   dir = File.dirname(path)
-  if dir =~ /^\.\/(.+)$/
-    dir = $1
-  end
-  if dir =~ /^\.\/(.+)$/
-    dir = $1
-  end
-  if dir =~ /#{base}\/([^\/]+)/
-    mvt = $1
-  else
-    mvt = nil
-  end
+  dir = Regexp.last_match(1) if dir =~ /^\.\/(.+)$/
+  dir = Regexp.last_match(1) if dir =~ /^\.\/(.+)$/
+  mvt = (Regexp.last_match(1) if dir =~ /#{base}\/([^\/]+)/)
   if $options['score_only']
-    {"selected_movements" => mvt}
+    { 'selected_movements' => mvt }
   else
-    {"selected_parts" => part, "selected_movements" => mvt}
+    { 'selected_parts' => part, 'selected_movements' => mvt }
   end
 end
 
@@ -236,15 +216,15 @@ $last_proof_path = nil
 def make_proof_score(midi = false)
   return unless $last_proof_path
   opts = proof_options($last_proof_path)
-  opts["selected_parts"] = nil
-  opts["score_only"] = true
-  opts["midi"] = midi
+  opts['selected_parts'] = nil
+  opts['score_only'] = true
+  opts['midi'] = midi
   process(opts)
 end
 
 def proof_interrupt
-  trap("INT") {exit}
-  puts "Proof mode interrupted. (S)core, (M)IDI or e(x)it?"
+  trap('INT') { exit }
+  puts 'Proof mode interrupted. (S)core, (M)IDI or e(x)it?'
   if i = STDIN.gets
     case i.chomp.downcase
     when 's'
@@ -255,10 +235,10 @@ def proof_interrupt
       exit
     end
   end
-  trap("INT") {proof_interrupt}
+  trap('INT') { proof_interrupt }
 end
 
-if $options["auto"]
+if $options['auto']
   require 'directory_watcher'
   if $config['proof']
     puts "Proof mode: #{$config['source']} -> #{$config['pdf_dir']}"
@@ -269,34 +249,31 @@ if $options["auto"]
   dw = DirectoryWatcher.new(File.expand_path($config['source']))
   dw.interval = 1
   dw.glob = globs($config['source'])
-  
+
   if $config['proof']
     dw.reset(true)
-    trap("INT") {proof_interrupt}
+    trap('INT') { proof_interrupt }
     dw.add_observer do |*args|
-      t = Time.now.strftime("%Y-%m-%d %H:%M:%S")
+      t = Time.now.strftime('%Y-%m-%d %H:%M:%S')
       args.each do |e|
-        if e.type = :modified
-          path = File.expand_path(e.path)
-          if path =~ /^#{File.expand_path($config['source'])}\/(.+)/
-            path = $1
-          end
-          puts "[#{t}] Changed: #{path}"
-          $last_proof_path = e.path unless File.extname(e.path) == '.yml'
-          process(proof_options($last_proof_path)) if $last_proof_path
-        end
+        next unless e.type = :modified
+        path = File.expand_path(e.path)
+        path = Regexp.last_match(1) if path =~ /^#{File.expand_path($config['source'])}\/(.+)/
+        puts "[#{t}] Changed: #{path}"
+        $last_proof_path = e.path unless File.extname(e.path) == '.yml'
+        process(proof_options($last_proof_path)) if $last_proof_path
       end
     end
   else
     dw.add_observer do |*args|
-      t = Time.now.strftime("%Y-%m-%d %H:%M:%S")
+      t = Time.now.strftime('%Y-%m-%d %H:%M:%S')
       puts "[#{t}] regeneration: #{args.size} files changed"
       process
     end
   end
-  
+
   dw.start
-  loop {sleep 1000}
+  loop { sleep 1000 }
   dw.stop
 
 else
