@@ -1,5 +1,4 @@
-source "http://rubygems.org"
-gem 'jeweler2'
+source 'http://rubygems.org'
 gem 'rspec'
 gem 'rake'
 gem 'rake-rspec'
