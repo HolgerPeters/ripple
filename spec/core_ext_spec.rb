@@ -1,189 +1,186 @@
-# encoding: UTF-8
-
 require File.expand_path(File.join(File.dirname(__FILE__), './spec_helper'))
 
-describe "Hash#lookup" do
+describe 'Hash#lookup' do
   before(:each) do
     @h = {
-      "a" => 1, 
-      "b" => {
-        "c" => 2, 
-        "d" => 3
-      }, 
-      "e" => {
-        "f" => {
-          "g" => 4, 
-          "h" => {
-            "i" => 5
+      'a' => 1,
+      'b' => {
+        'c' => 2,
+        'd' => 3
+      },
+      'e' => {
+        'f' => {
+          'g' => 4,
+          'h' => {
+            'i' => 5
           }
         }
       }
     }
   end
-  
-  it "should act like Hash#[] for flat paths" do
-    @h.lookup("a").should == 1
-    @h.lookup("b").should == {"c" => 2, "d" => 3}
-    @h.lookup("c").should be_nil
-    @h.lookup("e").should == {"f" => {"g" => 4, "h" => {"i" => 5}}}
+
+  it 'should act like Hash#[] for flat paths' do
+    @h.lookup('a').should == 1
+    @h.lookup('b').should == { 'c' => 2, 'd' => 3 }
+    @h.lookup('c').should be_nil
+    @h.lookup('e').should == { 'f' => { 'g' => 4, 'h' => { 'i' => 5 } } }
   end
-  
-  it "should provide deep access" do
-    @h.lookup("b/c").should == 2
-    @h.lookup("b/d").should == 3
-    @h.lookup("e/f").should == {"g" => 4, "h" => {"i" => 5}}
-    @h.lookup("e/f/g").should == 4
-    @h.lookup("e/f/h").should == {"i" => 5}
-    @h.lookup("e/f/h/i").should == 5
+
+  it 'should provide deep access' do
+    @h.lookup('b/c').should == 2
+    @h.lookup('b/d').should == 3
+    @h.lookup('e/f').should == { 'g' => 4, 'h' => { 'i' => 5 } }
+    @h.lookup('e/f/g').should == 4
+    @h.lookup('e/f/h').should == { 'i' => 5 }
+    @h.lookup('e/f/h/i').should == 5
   end
 end
 
-describe "Hash#set" do
+describe 'Hash#set' do
   before(:each) do
     @h = {
-      "a" => 1, 
-      "b" => {
-        "c" => 2, 
-        "d" => 3
-      }, 
-      "e" => {
-        "f" => {
-          "g" => 4, 
-          "h" => {
-            "i" => 5
+      'a' => 1,
+      'b' => {
+        'c' => 2,
+        'd' => 3
+      },
+      'e' => {
+        'f' => {
+          'g' => 4,
+          'h' => {
+            'i' => 5
           }
         }
       }
     }
   end
-  
-  it "should act like Hash#[]= for flat paths" do
-    @h.set("a", 7)
-    @h.should == {"a" => 7, "b" => {"c" => 2, "d" => 3}, 
-      "e" => {"f" => {"g" => 4, "h" => {"i" => 5}}}}
+
+  it 'should act like Hash#[]= for flat paths' do
+    @h.set('a', 7)
+    @h.should == { 'a' => 7, 'b' => { 'c' => 2, 'd' => 3 },
+                   'e' => { 'f' => { 'g' => 4, 'h' => { 'i' => 5 } } } }
   end
-  
-  it "should support deep access" do
-    @h.set("a/z/x", 8)
-    @h.should == {"a" => {"z" => {"x" => 8}}, "b" => {"c" => 2, "d" => 3}, 
-      "e" => {"f" => {"g" => 4, "h" => {"i" => 5}}}}
-      
-    @h.set("b/c", 9)
-    @h.should == {"a" => {"z" => {"x" => 8}}, "b" => {"c" => 9, "d" => 3}, 
-      "e" => {"f" => {"g" => 4, "h" => {"i" => 5}}}}
+
+  it 'should support deep access' do
+    @h.set('a/z/x', 8)
+    @h.should == { 'a' => { 'z' => { 'x' => 8 } }, 'b' => { 'c' => 2, 'd' => 3 },
+                   'e' => { 'f' => { 'g' => 4, 'h' => { 'i' => 5 } } } }
+
+    @h.set('b/c', 9)
+    @h.should == { 'a' => { 'z' => { 'x' => 8 } }, 'b' => { 'c' => 9, 'd' => 3 },
+                   'e' => { 'f' => { 'g' => 4, 'h' => { 'i' => 5 } } } }
   end
 end
 
-describe "Hash#merge" do
+describe 'Hash#merge' do
   before(:each) do
     @h = {
-      "a" => 1, 
-      "b" => {
-        "c" => 2, 
-        "d" => 3
+      'a' => 1,
+      'b' => {
+        'c' => 2,
+        'd' => 3
       }
     }
   end
-  
-  it "should act normally when hash#deep is false" do
-    @h.merge("a" => 7).should == {"a" => 7, "b" => {"c" => 2, "d" => 3}}
 
-    @h.merge("b" => {"e" => 4}).should == {"a" => 1, "b" => {"e" => 4}} 
+  it 'should act normally when hash#deep is false' do
+    @h.merge('a' => 7).should == { 'a' => 7, 'b' => { 'c' => 2, 'd' => 3 } }
+
+    @h.merge('b' => { 'e' => 4 }).should == { 'a' => 1, 'b' => { 'e' => 4 } }
   end
-  
-  it "should do deep merge if hash#deep is true" do
+
+  it 'should do deep merge if hash#deep is true' do
     @h.deep = true
-    @h.merge("b" => {"e" => 4}).should == {"a" => 1, "b" => {"c" => 2, "d" => 3, "e" => 4}} 
+    @h.merge('b' => { 'e' => 4 }).should == { 'a' => 1, 'b' => { 'c' => 2, 'd' => 3, 'e' => 4 } }
   end
-  
-  it "should create deep copies when hash#deep is true" do
+
+  it 'should create deep copies when hash#deep is true' do
     @h.deep = true
-    m = @h.merge({"b" => {"e" => 4}})
-    m.should == {"a" => 1, "b" => {"c" => 2, "d" => 3, "e" => 4}}
-    @h["b"]["c"] = 22
-    m["b/c"].should == 2
-    
-    @h.merge!("b" => {"f" => 5})
-    m["b/f"].should == nil
+    m = @h.merge('b' => { 'e' => 4 })
+    m.should == { 'a' => 1, 'b' => { 'c' => 2, 'd' => 3, 'e' => 4 } }
+    @h['b']['c'] = 22
+    m['b/c'].should == 2
+
+    @h['b'] = { 'f' => 5 }
+    m['b/f'].should.nil?
   end
 end
 
-describe "Hash#merge!" do
+describe 'Hash#merge!' do
   before(:each) do
     @h = {
-      "a" => 1, 
-      "b" => {
-        "c" => 2, 
-        "d" => 3
+      'a' => 1,
+      'b' => {
+        'c' => 2,
+        'd' => 3
       }
     }
   end
-  
-  it "should act normally when hash#deep is false" do
-    @h.merge!("a" => 7).should == {"a" => 7, "b" => {"c" => 2, "d" => 3}}
 
-    @h.merge!("b" => {"e" => 4}).should == {"a" => 7, "b" => {"e" => 4}} 
+  it 'should act normally when hash#deep is false' do
+    @h.merge!('a' => 7).should == { 'a' => 7, 'b' => { 'c' => 2, 'd' => 3 } }
+
+    @h.merge!('b' => { 'e' => 4 }).should == { 'a' => 7, 'b' => { 'e' => 4 } }
   end
-  
-  it "should do deep merge if hash#deep is true" do
+
+  it 'should do deep merge if hash#deep is true' do
     @h.deep = true
-    @h.merge!("b" => {"e" => 4}).should == {"a" => 1, "b" => {"c" => 2, "d" => 3, "e" => 4}} 
+    @h.merge!('b' => { 'e' => 4 }).should == { 'a' => 1, 'b' => { 'c' => 2, 'd' => 3, 'e' => 4 } }
   end
 end
 
-describe "Array#array_index" do
+describe 'Array#array_index' do
   before(:each) do
-    @a = [1,2,3,4,5]
+    @a = [1, 2, 3, 4, 5]
   end
-  
-  it "should return the index of the passed argument in the array" do
-    @a.array_index([1,2,3]).should == 0
-    @a.array_index([1,2,3,4]).should == 0
-    @a.array_index([1,2,3,4,5]).should == 0
+
+  it 'should return the index of the passed argument in the array' do
+    @a.array_index([1, 2, 3]).should == 0
+    @a.array_index([1, 2, 3, 4]).should == 0
+    @a.array_index([1, 2, 3, 4, 5]).should == 0
     @a.array_index([5]).should == 4
-    @a.array_index([5,6]).should == nil
+    @a.array_index([5, 6]).should.nil?
 
-    @a.array_index([3,4]).should == 2
-    @a.array_index([3,5]).should == nil
+    @a.array_index([3, 4]).should == 2
+    @a.array_index([3, 5]).should.nil?
   end
 end
 
-describe "String#ly_inspect" do
-  it "should properly escape quotes" do
-    s = "r \"i\" p"
-    s.ly_inspect.should == "\"r \\\"i\\\" p\""
+describe 'String#ly_inspect' do
+  it 'should properly escape quotes' do
+    s = 'r "i" p'
+    s.ly_inspect.should == '"r \\"i\\" p"'
   end
-  
-  it "should not escape unicode characters" do
+
+  it 'should not escape unicode characters' do
     s = "\"Allein Gott in der Höh' sei Ehr'\""
     s.ly_inspect.should == "\"\\\"Allein Gott in der H\303\266h' sei Ehr'\\\"\""
   end
 end
 
-describe "String#to_instrument_title" do
-  it "should recognize indexed instruments" do
-    "violino1".to_instrument_title.should == 'Violino I'
-    "violino3".to_instrument_title.should == 'Violino III'
+describe 'String#to_instrument_title' do
+  it 'should recognize indexed instruments' do
+    'violino1'.to_instrument_title.should == 'Violino I'
+    'violino3'.to_instrument_title.should == 'Violino III'
   end
-  
-  it "should handle multiple words in title" do
-    "viola-da-gamba1".to_instrument_title.should == 'Viola da gamba I'
+
+  it 'should handle multiple words in title' do
+    'viola-da-gamba1'.to_instrument_title.should == 'Viola da gamba I'
   end
 end
 
-describe "String#to_movement_title" do
-  it "should work with numbered titles" do
-    "01-blah-blah".to_movement_title.should == '1. Blah Blah'
+describe 'String#to_movement_title' do
+  it 'should work with numbered titles' do
+    '01-blah-blah'.to_movement_title.should == '1. Blah Blah'
   end
 
-  it "should work with numbers only" do
-    "01".to_movement_title.should == 'I'
-    "09".to_movement_title.should == 'IX'
+  it 'should work with numbers only' do
+    '01'.to_movement_title.should == 'I'
+    '09'.to_movement_title.should == 'IX'
   end
-  
-  it "should omit number when prefixed with a dash" do
-    "-01-Blah".to_movement_title.should == 'Blah'
-    "-09-Versus-VIII".to_movement_title.should == 'Versus VIII'
+
+  it 'should omit number when prefixed with a dash' do
+    '-01-Blah'.to_movement_title.should == 'Blah'
+    '-09-Versus-VIII'.to_movement_title.should == 'Versus VIII'
   end
 end
-

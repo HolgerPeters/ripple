@@ -1,7 +1,7 @@
-class Fixnum
+class Integer
   ROMAN = %w[0 I II III IV V VI VII VIII IX X XI XII XIII XIV XV XVI XVII XVIII XIX
-    XX XXI XXII XXIII XXIV XXV XXVI XXVII XXVIII XXIX XXX]
-  
+             XX XXI XXII XXIII XXIV XXV XXVI XXVII XXVIII XXIX XXX].freeze
+
   def to_roman
     ROMAN[self]
   end
@@ -9,35 +9,35 @@ end
 
 class String
   def titlize(all_capitals = false)
-    all_capitals ? 
-      self.gsub("-", " ").gsub(/\b('?[a-z])/) {$1.capitalize} :
-      self.gsub("-", " ").capitalize
+    all_capitals ?
+      tr('-', ' ').gsub(/\b('?[a-z])/) { Regexp.last_match(1).capitalize } :
+      tr('-', ' ').capitalize
   end
-  
+
   def to_movement_title
     case self
     when /^\-\d+\-(.+)$/
-      $1.titlize(true)
+      Regexp.last_match(1).titlize(true)
     when /^(\d+)\-(.+)$/
-      "#{$1.to_i}. #{$2.titlize(true)}"
+      "#{Regexp.last_match(1).to_i}. #{Regexp.last_match(2).titlize(true)}"
     when /^(\d+)$/
-      num = $1.to_i.to_roman
+      num = Regexp.last_match(1).to_i.to_roman
     else
       self
     end
   end
-  
+
   def to_instrument_title
     if self =~ /^([^\d]+)(\d+)$/
-      "#{$1.titlize} #{$2.to_i.to_roman}"
+      "#{Regexp.last_match(1).titlize} #{Regexp.last_match(2).to_i.to_roman}"
     else
-      self.titlize
+      titlize
     end
   end
-  
+
   # Works like inspect, except it unescapes Unicode sequences
   def ly_inspect
-    inspect.gsub(/(\\(\d{3}))/) {[$2.oct].pack("c")}
+    inspect.gsub(/(\\(\d{3}))/) { [Regexp.last_match(2).oct].pack('c') }
   end
 end
 
@@ -55,7 +55,7 @@ class Hash
 
   def deep_merge!(hash)
     hash.keys.each do |key|
-      if hash[key].is_a? Hash and self[key].is_a? Hash
+      if hash[key].is_a?(Hash) && self[key].is_a?(Hash)
         self[key] = self[key].deep_merge!(hash[key])
         next
       end
@@ -68,19 +68,19 @@ class Hash
   end
 
   def lookup(path)
-    path.split("/").inject(self) {|m,i| m[i].nil? ? (return nil) : m[i]}
+    path.split('/').inject(self) { |m, i| m[i].nil? ? (return nil) : m[i] }
   end
-  
+
   def set(path, value)
-    leafs = path.split("/")
+    leafs = path.split('/')
     k = leafs.pop
-    h = leafs.inject(self) {|m, i| m[i].is_a?(Hash) ? m[i] : (m[i] = {})}
+    h = leafs.inject(self) { |m, i| m[i].is_a?(Hash) ? m[i] : (m[i] = {}) }
     h[k] = value
   end
-  
+
   attr_accessor :deep
 
-  alias_method :old_get, :[]
+  alias old_get []
   def [](k)
     if @deep && k.is_a?(String) && k =~ /\//
       lookup(k)
@@ -88,8 +88,8 @@ class Hash
       old_get(k)
     end
   end
-  
-  alias_method :old_set, :[]=
+
+  alias old_set []=
   def []=(k, v)
     if @deep && k.is_a?(String) && k =~ /\//
       set(k, v)
@@ -97,8 +97,8 @@ class Hash
       old_set(k, v)
     end
   end
-  
-  alias_method :old_merge, :merge
+
+  alias old_merge merge
   def merge(hash)
     if deep || hash.deep
       deep_merge(hash)
@@ -106,8 +106,8 @@ class Hash
       old_merge(hash)
     end
   end
-  
-  alias_method :old_merge!, :merge!
+
+  alias old_merge! merge!
   def merge!(hash)
     if deep || hash.deep
       deep_merge!(hash)
@@ -119,7 +119,7 @@ end
 
 class Array
   # Returns the index of an array of items inside the array:
-  # 
+  #
   #   [1,2,3,4,5].array_index([3,4]) #=> 2
   #   [1,2,3,4,5].array_index([3,5]) #=> nil
   def array_index(arr)
@@ -138,14 +138,20 @@ module Kernel
     b.shift
     b
   end
-  
+
   def load_yaml(fn)
-    convert_yaml(IO.read(fn)) rescue {}
+    convert_yaml(IO.read(fn))
+  rescue
+    {}
   end
-  
+
   def convert_yaml(s)
-    o = YAML.load(s) rescue {}
-    (o == false) ? {} : o
+    o = begin
+          YAML.safe_load(s)
+        rescue
+          {}
+        end
+    o == false ? {} : o
   end
 end
 
@@ -153,16 +159,14 @@ class Exception
   def clean_backtrace
     stop = nil
     return [] if backtrace.nil?
-    backtrace.inject([]) do |m, i|
+    backtrace.each_with_object([]) do |i, m|
       unless stop
         m << i
         stop = i !~ /bin/
       end
-      m
     end
   end
 end
-
 
 class RippleError < RuntimeError
 end

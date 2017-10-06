@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
 
-trap("INT") {exit}
-trap("TERM") {exit}
+trap('INT') { exit }
+trap('TERM') { exit }
 
-$:.unshift File.join(File.dirname(__FILE__), *%w[.. lib])
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), '..', 'lib')
 
 require 'ripple'
 
