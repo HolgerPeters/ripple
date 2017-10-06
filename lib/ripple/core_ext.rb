@@ -1,11 +1,11 @@
-class Fixnum
-  ROMAN = %w[0 I II III IV V VI VII VIII IX X XI XII XIII XIV XV XVI XVII XVIII XIX
-    XX XXI XXII XXIII XXIV XXV XXVI XXVII XXVIII XXIX XXX]
+#class Fixnum
+  #ROMAN = %w[0 I II III IV V VI VII VIII IX X XI XII XIII XIV XV XVI XVII XVIII XIX
+    #XX XXI XXII XXIII XXIV XXV XXVI XXVII XXVIII XXIX XXX]
   
-  def to_roman
-    ROMAN[self]
-  end
-end
+  #def to_roman
+    #ROMAN[self]
+  #end
+#end
 
 class String
   def titlize(all_capitals = false)
